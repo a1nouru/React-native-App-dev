@@ -5,9 +5,12 @@ import { LogBox } from 'react-native';
 import { Ionicons } from "@expo/vector-icons"
 import MenuItem from "./MenuItem";
 import { connect } from "react-redux"
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function mapStateToProps(state) {
-  return { action: state.action, name: state.name }
+  return { 
+    action: state.action, 
+    name: state.name }
 }
 
 function mapDispatchToProps(dispatch) {
@@ -15,6 +18,16 @@ function mapDispatchToProps(dispatch) {
     closeMenu: () => 
       dispatch({
         type: "CLOSE_MENU"
+      }),
+    updateName: (name) => 
+      dispatch({
+        type: "UPDATE_NAME",
+        name
+      }),
+    updateAvatar: (avatar) => 
+      dispatch({
+        type: "UPDATE_AVATAR",
+        avatar
       })
   };
 }
@@ -50,6 +63,17 @@ class Menu extends React.Component {
         }).start()
       }
     } 
+
+    //When user clicks on logout, clear asynch storage. 
+    logout = index => {
+      if (index === 3){
+        this.props.closeMenu()
+        this.props.updateName("Stanger")
+        this.props.updateAvatar("https://cl.ly/55da82beb939/download/avatar-default.jpg")
+        AsyncStorage.clear()
+      }
+    }
+
     render() {  
         return (
             <AnimatedContainer style={{top: this.state.top}}>
@@ -58,6 +82,7 @@ class Menu extends React.Component {
                   <Title>{this.props.name}</Title>
                   <Subtitle>nouru@uber.com</Subtitle>
                 </Cover> 
+                
                 <TouchableOpacity 
                   onPress={this.props.closeMenu} 
                   style={{
@@ -72,14 +97,20 @@ class Menu extends React.Component {
                     <Ionicons name="ios-close" size={44} color="#546bfb"/>
                     </CloseView>
                 </TouchableOpacity>
+
                 <Content>
                   {items.map((item, index) => (
-                    <MenuItem 
-                      key={`item ${index}`}
-                      icon={item.icon}
-                      title={item.title}
-                      text={item.text}
-                    />
+                    <TouchableOpacity key={`item ${index}`} 
+                      onPress={() => {
+                        this.logout(index)
+                      }}
+                    >
+                      <MenuItem 
+                        icon={item.icon}
+                        title={item.title}
+                        text={item.text}
+                      />
+                    </TouchableOpacity>
                   ))}
                 </Content>
             </AnimatedContainer >
