@@ -145,8 +145,7 @@ const CloseView = styled.View`
 const Content = styled.View`
   height: 100%;
   padding: 20px;
-  background-color: white
-
+  background-color: white;
 `
 
 const htmlContent = `

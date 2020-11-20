@@ -5,11 +5,11 @@ import {
   TouchableOpacity, 
   Animated, 
   Easing, 
-  StatusBar
+  StatusBar, 
+  Platform
 } from 'react-native';
 import styled from "styled-components"
 import Card from '../Components/Card';
-import { Ionicons } from "@expo/vector-icons"
 import { NotificationIcon } from "../Components/icons"
 import Logo from '../Components/Logo';
 import Course from '../Components/Course';
@@ -18,6 +18,7 @@ import { connect } from 'react-redux'
 import Avatar from '../Components/Avatar';
 import gql from 'graphql-tag'
 import { Query } from 'react-apollo';
+import ModalLogin from '../Components/ModalLogin';
 
 const CardsQuery = gql`
   {
@@ -61,7 +62,10 @@ function mapDispatchToProps(dispatch) {
   return {
     openMenu: () => dispatch({
         type: "OPEN_MENU"
-      })
+      }),
+    openLogin: () => dispatch({
+      type: "OPEN_LOGIN"
+    })
   };
 }
  
@@ -100,7 +104,7 @@ class HomeScreen extends React.Component {
       // StatusBar.setBarStyle("light-content", true);
     }
 
-    if (this.props.action == "closeMenu"){
+    if (this.props.action == "closeMenu"){    
       Animated.timing(this.state.scale, {
         toValue: 1,
         duration: 300,
@@ -115,6 +119,14 @@ class HomeScreen extends React.Component {
     //  StatusBar.setBarStyle("dark-content", true)
   };
 
+  /*If user already logged-in(user name was set by firebase) 
+  then openMenu else have user sign in. */
+  handleAvatar = () => {
+    if (this.props.name !== "Stanger") {
+      this.props.openMenu();
+    } else { this.props.openLogin()}
+  }
+
   render(){
     return (
         <RootView>
@@ -126,7 +138,7 @@ class HomeScreen extends React.Component {
             <ScrollView style={{height: "100%" }}> 
               <TitleBar>
                 <TouchableOpacity 
-                onPress={this.props.openMenu} 
+                onPress={this.handleAvatar} 
                 style={{ 
                   position: "absolute", 
                   top: 0, 
@@ -161,12 +173,10 @@ class HomeScreen extends React.Component {
                       return (<Message>Error while fecting cards...</Message>)
                     }
                     
-                    console.log(data)
                     return (
                       <ScrollView horizontal={true} 
                         style={{flexDirection: "row", paddingBottom: 30}}
                         showsHorizontalScrollIndicator={false}
-                
                       >
                         <CardsContainer>
                           {data.cardsCollection .items.map((card, index) => (
@@ -207,6 +217,7 @@ class HomeScreen extends React.Component {
             </ScrollView>
           </SafeAreaView>
         </AnimatedContainer>
+        <ModalLogin />
       </RootView>
     );
   }
